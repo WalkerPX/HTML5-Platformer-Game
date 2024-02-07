@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Platformer Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const player = {
+            x: 50,
+            y: 50,
+            width: 30,
+            height: 30,
+            color: 'blue',
+            speed: 5,
+            jumping: false,
+            jumpHeight: 10,
+        };
+
+        const platform = {
+            x: 0,
+            y: canvas.height - 20,
+            width: canvas.width,
+            height: 20,
+            color: 'green',
+        };
+
+        function draw() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Draw platform
+            ctx.fillStyle = platform.color;
+            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        }
+
+        function update() {
+            // Move player horizontally
+            if (dKey && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+
+            if (aKey && player.x > 0) {
+                player.x -= player.speed;
+            }
+
+            // Simulate jumping
+            if (player.jumping) {
+                player.y -= player.jumpHeight;
+                setTimeout(() => {
+                    player.y += player.jumpHeight;
+                    player.jumping = false;
+                }, 200);
+            }
+
+            // Apply gravity
+            if (player.y < canvas.height - player.height) {
+                player.y += 2;
+            }
+
+            // Check for collision with platform
+            if (player.y + player.height > platform.y && player.x + player.width > platform.x && player.x < platform.x + platform.width) {
+                player.y = platform.y - player.height;
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Keyboard input handling
+        let aKey = false;
+        let dKey = false;
+
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'KeyA') {
+                aKey = true;
+            } else if (event.code === 'KeyD') {
+                dKey = true;
+            } else if (event.code === 'Space' && !player.jumping) {
+                player.jumping = true;
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (event.code === 'KeyA') {
+                aKey = false;
+            } else if (event.code === 'KeyD') {
+                dKey = false;
+            }
+        });
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>
